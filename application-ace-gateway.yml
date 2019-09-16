@@ -4,51 +4,51 @@ server:
 #请求和响应GZIP压缩支持
 feign:
   httpclient:
-    enabled: false
+    enabled: false     #关闭默认的使用jdk中的HttpURLConnection发送HTTP请求
   okhttp:
-    enabled: true
+    enabled: true    #OKhttp来发送请求 ，开启
   compression:
-    request:
-      enabled: true
-      mime-types: text/xml,application/xml,application/json
-      min-request-size: 2048
-    response:
-      enabled: true
+    request:    #请求
+      enabled: true    #开启
+      mime-types: text/xml,application/xml,application/json   #开启支持压缩的MIME TYPE
+      min-request-size: 2048         #配置压缩数据大小的下限
+    response:   #响应
+      enabled: true  #开启
 
 spring:
   application:
       name: ace-gateway
   redis:
-      database: 2
+      database: 2   #redis的数据库个数是可以配置的，默认为16个,索引值为0-15，使用索引值为2的数据库
       host: 192.168.125.155
       jedis:
         pool:
-            max-active: 20
+            max-active: 20  #控制一个pool可分配多少个jedis实例，通过pool.getResource()来获取；如果赋值为-1，则表示不限制
   rabbitmq:
-      host: 192.168.127.232
-      port: 15672
+      host: 127.0.0.1
+      port: 5672
       username: guest
       password: guest
   sleuth:
-    enabled: true
+    enabled: true   #开启链路跟踪
     http:
       legacy:
         enabled: true
-  cloud:
+  cloud:                #网关配置信息
      gateway:
        discovery:
          locator:
-           lowerCaseServiceId: true
-           enabled: true
-       routes:
+           lowerCaseServiceId: true     #服务ID大小写(true:小写)
+           enabled: true                #为所有服务都进行转发操作，只需要在访问路径上指定要访问的服务即可
+       routes:                              #配置路由
         # =====================================
-        - id: ace-auth
-          uri: lb://ace-auth
-          order: 8000
+        - id: ace-auth                  #路由的名称
+          uri: lb://ace-auth            #注册中心中服务的名称
+          order: 8000                   #执行顺序，值越大越低
           predicates:
-          - Path=/api/auth/**
+          - Path=/api/auth/**           #请求的uri：以/api/auth/**开头的都会转发到ace-auth
           filters:
-          - StripPrefix=2
+          - StripPrefix=2               #截取请求uri前两个单词 api、auth
         - id: ace-admin
           uri: lb://ace-admin
           order: 8001
@@ -58,36 +58,42 @@ spring:
           - StripPrefix=2
      nacos:
         discovery:
-          server-addr: 127.0.0.1:8848
+          server-addr: 127.0.0.1:8848   #将网关注册到注册中心
+     bus:
+      enabled: true
+     config:
+      fail-fast: true
   sentinel:
     transport:
-      dashboard: localhost:8080
+      dashboard: localhost:8080         #流量监测
+  main:
+    allow-bean-definition-overriding: true   #配置同一个服务调用可以定义多个feign接口
 logging:
   level:
-    com.github.wxiaoqi.security.gate.v2: info
+    com.github.wxiaoqi.security.gate.v2: info    #日志开启
 
 management:
   endpoints:
     web:
       exposure:
-        include: '*'
+        include: '*'    #include属性列出了公开的端点的id：所有
   security:
-    enabled: false
+    enabled: false     #关闭安全验证
 
 
 gate:
   ignore:
-    startWith: /auth/jwt
+    startWith: /auth/jwt  #不拦截的路径
 
 
-auth:
-  serviceId: ace-auth
+auth:                          #api鉴权属性
+  serviceId: ace-auth          #用于标识 API 调用者身份
   user:
     token-header: Authorization
   client:
     token-header: x-client-token
-    id: ace-gate  #不填则默认读取spring.application.name
-    secret: 123456
+    id: ace-gate     #不填则默认读取spring.application.name
+    secret: 123456   #加密签名字符串和服务器端验证签名字符串的密钥
 
 
 ribbon:
@@ -111,3 +117,6 @@ hystrix:
         isolation:
           thread:
             timeoutInMilliseconds: 10000
+            
+            
+            
