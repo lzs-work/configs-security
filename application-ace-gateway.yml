@@ -1,6 +1,6 @@
-server:
+﻿server:
   port: 8765
-
+#请求测试webhooks
 #请求和响应GZIP压缩支持
 feign:
   httpclient:
