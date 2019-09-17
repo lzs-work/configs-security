@@ -17,7 +17,7 @@ feign:
 
 spring:
   application:
-      name: ace-gateway
+      name: ace-gateway-test
   redis:
       database: 2   #redis的数据库个数是可以配置的，默认为16个,索引值为0-15，使用索引值为2的数据库
       host: 192.168.125.155
